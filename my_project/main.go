@@ -31,7 +31,7 @@ func main() {
 	mux.Handle("/api/rule/all", http.HandlerFunc(controllers.RuleHandler))
 	mux.Handle("/api/rule/names/all", http.HandlerFunc(controllers.RuleNamesHandler))
 
-	//启动数据
+	//启动服务
 	log.Println("Listening :8080")
 	http.ListenAndServe(":8080", mux)
 }
