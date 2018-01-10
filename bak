@@ -1,0 +1,31 @@
+package main
+
+import (
+	"log"
+	"net/http"
+	"build_web/my_project/controllers"
+)
+
+func main() {
+	//新建一个处理Handle
+	mux := http.NewServeMux()
+
+	//建立一个文件服务器
+	fs := http.FileServer(http.Dir("./public"))
+
+	//静态文件
+	mux.Handle("/", fs)
+
+	//页面
+	mux.Handle("/login.html", http.HandlerFunc(controllers.Login))
+	mux.Handle("/overview.html", http.HandlerFunc(controllers.Overview))
+	mux.Handle("/users.html", http.HandlerFunc(controllers.UserView))
+
+	//接口数据
+	mux.Handle("/api/user/all", http.HandlerFunc(controllers.UserHandler))
+	mux.Handle("/api/user/mobile", http.HandlerFunc(controllers.UserInfoByPhoneNumber))
+
+	//启动数据
+	log.Println("Listening :8080")
+	http.ListenAndServe(":8080", mux)
+}
