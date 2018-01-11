@@ -57,10 +57,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		flagCheck := CheckPassword(user.Password, password)
 		log.Printf("password check result=%s", flagCheck)
 		type MyData struct {
-			Userid int64 `json:"userid"`
+			UserId int64 `json:"userid"`
 		}
 		my := MyData{}
-		my.Userid = user.Id
+		my.UserId = user.Id
 		resp.Respcd = "0000"
 		resp.Resperr = ""
 		resp.Respmsg = ""
@@ -96,8 +96,8 @@ func UserHandler(w http.ResponseWriter, r *http.Request)  {
 		resp.Resperr = "请求方法错误"
 		resp.Respmsg = "请求方法错误"
 		resp.Data = nil
-		resp_str, _ := json.Marshal(resp)
-		w.Write(resp_str)
+		respStr, _ := json.Marshal(resp)
+		w.Write(respStr)
 	}
 	err := r.ParseForm()
 	if err != nil {
@@ -106,28 +106,28 @@ func UserHandler(w http.ResponseWriter, r *http.Request)  {
 	val := r.PostForm
 	log.Println(val)
 	page, _ := strconv.ParseInt(val["page"][0], 10, 32)
-	maxnum, _ := strconv.ParseInt(val["maxnum"][0],10, 32)
-	log.Printf("page: %d, num: %d", page, maxnum)
+	maxNum, _ := strconv.ParseInt(val["maxnum"][0],10, 32)
+	log.Printf("page: %d, num: %d", page, maxNum)
 	db := GetConn()
 	defer db.Close()
-	all_user := QueryAllUsersInfo(db, page, maxnum)
+	allUser := QueryAllUsersInfo(db, page, maxNum)
 
 	type MyData struct {
 		Info []model.User	`json:"info"`
 		Num  int            `json:"num"`
 	}
-	total_num := QueryUsersAllTotal(db)
-	my_data := MyData{
-		all_user,
-		total_num,
+	totalNum := QueryUsersAllTotal(db)
+	myData := MyData{
+		allUser,
+		totalNum,
 	}
 	resp.Respcd = "0000"
 	resp.Resperr = ""
 	resp.Respmsg = ""
-	resp.Data = my_data
-	resp_str, _ := json.Marshal(resp)
-	log.Println(string(resp_str))
-	w.Write(resp_str)
+	resp.Data = myData
+	respStr, _ := json.Marshal(resp)
+	log.Println(string(respStr))
+	w.Write(respStr)
 }
 
 func UserInfoByPhoneNumber(w http.ResponseWriter, r *http.Request) {
@@ -137,8 +137,8 @@ func UserInfoByPhoneNumber(w http.ResponseWriter, r *http.Request) {
 		resp.Resperr = "请求方法错误"
 		resp.Respmsg = "请求方法错误"
 		resp.Data = nil
-		resp_str, _ := json.Marshal(resp)
-		w.Write(resp_str)
+		respStr, _ := json.Marshal(resp)
+		w.Write(respStr)
 	}
 	err := r.ParseForm()
 	if err != nil {
@@ -163,7 +163,7 @@ func UserInfoByPhoneNumber(w http.ResponseWriter, r *http.Request) {
 		resp.Respmsg = "用户不存在"
 		resp.Resperr = "用户不存在"
 	}
-	resp_str, _ := json.Marshal(resp)
-	log.Println(string(resp_str))
-	w.Write(resp_str)
+	respStr, _ := json.Marshal(resp)
+	log.Println(string(respStr))
+	w.Write(respStr)
 }

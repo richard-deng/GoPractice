@@ -15,7 +15,7 @@ func GetConn() *sql.DB{
 	}
 	return db
 }
-
+/*
 func QueryPasswordByMobile(mobile string) sql.NullString {
 	db := GetConn()
 	defer db.Close()
@@ -33,7 +33,7 @@ func QueryPasswordByMobile(mobile string) sql.NullString {
 	}
 	return password
 }
-
+*/
 func QueryByPhoneNumber(db *sql.DB, mobile string) model.User {
 	rows, err := db.Query("select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user where phone_num=? limit 1", mobile)
 	if err != nil {

@@ -27,19 +27,19 @@ func ChannelHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println(val)
 	log.Println("test here end")
 	page, _ := strconv.ParseInt(val["page"][0], 10, 32)
-	maxnum, _ := strconv.ParseInt(val["maxnum"][0],10, 32)
-	log.Printf("page: %d, num: %d", page, maxnum)
+	maxNum, _ := strconv.ParseInt(val["maxnum"][0],10, 32)
+	log.Printf("page: %d, num: %d", page, maxNum)
 	db := GetConn()
 	defer db.Close()
-	all_channel := QueryAllChannelInfo(db, page, maxnum)
-	total_num := QueryChannelAllTotal(db)
+	allChannel := QueryAllChannelInfo(db, page, maxNum)
+	totalNum := QueryChannelAllTotal(db)
 	type MyData struct {
 		Info []model.Channel	`json:"info"`
 		Num  int            `json:"num"`
 	}
 	data := MyData{
-		all_channel,
-		total_num,
+		allChannel,
+		totalNum,
 	}
 	resp.Respcd = "0000"
 	resp.Resperr = ""
