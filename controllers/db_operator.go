@@ -15,25 +15,81 @@ func GetConn() *sql.DB{
 	}
 	return db
 }
-/*
-func QueryPasswordByMobile(mobile string) sql.NullString {
+
+func QueryUserById(userId int64) model.User {
 	db := GetConn()
 	defer db.Close()
-	var password sql.NullString
-	rows, err := db.Query("select password from auth_user where phone_num=? limit 1", mobile)
+	var user = model.User{}
+	user.Id = 0
+	var loginName, nickName, phoneNum, password, email, username, cTime sql.NullString
+	var id sql.NullInt64
+	var userType, state sql.NullInt64
+	rows, err := db.Query("select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user where id=? limit 1", userId)
 	if err != nil {
 		panic(err)
 	}
 
 	for rows.Next(){
-		err := rows.Scan(&password)
+		err := rows.Scan(&id, &loginName, &nickName, &phoneNum, &password, &userType, &email, &state, &username, &cTime)
 		if err != nil{
 			panic(err)
+			return user
 		}
 	}
-	return password
+	if id.Valid {
+		user.Id = id.Int64
+	} else {
+		user.Id = 0
+	}
+	if loginName.Valid {
+		user.Login_name = loginName.String
+	} else {
+		user.Login_name = ""
+	}
+	user.Login_name = loginName.String
+	if nickName.Valid {
+		user.Nick_name = nickName.String
+	} else {
+		user.Nick_name = ""
+	}
+	if phoneNum.Valid {
+		user.Phone_num = phoneNum.String
+	} else {
+		user.Phone_num = ""
+	}
+	if password.Valid {
+		user.Password = password.String
+	} else {
+		user.Password = ""
+	}
+	if userType.Valid {
+		user.User_type = userType.Int64
+	} else {
+		user.User_type = 0
+	}
+	if email.Valid {
+		user.Email = email.String
+	} else {
+		user.Email = ""
+	}
+	if state.Valid {
+		user.State = state.Int64
+	} else {
+		user.State = 0
+	}
+	if username.Valid {
+		user.Username = username.String
+	} else {
+		user.Username = ""
+	}
+	if cTime.Valid {
+		user.Ctime = cTime.String
+	} else {
+		user.Ctime = ""
+	}
+	return user
 }
-*/
+
 func QueryByPhoneNumber(db *sql.DB, mobile string) model.User {
 	rows, err := db.Query("select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user where phone_num=? limit 1", mobile)
 	if err != nil {
@@ -348,4 +404,15 @@ func QueryRuleNames(db *sql.DB) []string {
 		names = append(names, name.String)
 	}
 	return names
+}
+
+func UpdatePasswordById(userId int64, password string) {
+	db := GetConn()
+	defer db.Close()
+	var updateSql = "update auth_user set password ? where id = ?"
+	_, err := db.Exec(updateSql, password, userId)
+	if err != nil {
+		panic(err)
+		return
+	}
 }

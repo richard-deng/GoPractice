@@ -26,6 +26,7 @@ func main() {
 	//接口数据
 	mux.Handle("/api/user/all", http.HandlerFunc(controllers.UserHandler))
 	mux.Handle("/api/user/mobile", http.HandlerFunc(controllers.UserInfoByPhoneNumber))
+	mux.Handle("/api/user/password/change", http.HandlerFunc(controllers.UserChangePasswordHandler))
 	mux.Handle("/api/channel/all", http.HandlerFunc(controllers.ChannelHandler))
 	mux.Handle("/api/channel/names/all", http.HandlerFunc(controllers.ChannelNamesHandler))
 	mux.Handle("/api/rule/all", http.HandlerFunc(controllers.RuleHandler))

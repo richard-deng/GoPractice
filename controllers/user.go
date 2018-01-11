@@ -88,7 +88,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-
 func UserHandler(w http.ResponseWriter, r *http.Request)  {
 	resp := model.Response{}
 	if r.Method != "POST" {
@@ -166,4 +165,50 @@ func UserInfoByPhoneNumber(w http.ResponseWriter, r *http.Request) {
 	respStr, _ := json.Marshal(resp)
 	log.Println(string(respStr))
 	w.Write(respStr)
+}
+
+func UserChangePasswordHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("change password Method:", r.Method)
+	resp := model.Response{}
+	if r.Method != "POST" {
+		resp.Respcd = "1000"
+		resp.Resperr = "请求方法错误"
+		resp.Respmsg = "请求方法错误"
+		resp.Data = nil
+		respStr, _ := json.Marshal(resp)
+		w.Write(respStr)
+		return
+	}
+	err := r.ParseForm()
+	if err != nil {
+		panic(err)
+	}
+	val := r.PostForm
+	var userId = val["userid"][0]
+	var password = val["password"][0]
+	UserId, err := strconv.ParseInt(userId, 10, 64)
+	if err != nil {
+		panic(err)
+		return
+	}
+	// 先检查userId后更新密码
+	user := QueryUserById(UserId)
+	if user.Id == 0 {
+		resp.Respcd = "2000"
+		resp.Respmsg = "该用户不存在"
+		resp.Resperr = "该用户不存在"
+		resp.Data = nil
+		respStr, _ := json.Marshal(resp)
+		w.Write(respStr)
+		return
+	}
+	fullPassword := GenPassword(password)
+	UpdatePasswordById(UserId, fullPassword)
+	resp.Respcd = ""
+	resp.Resperr = ""
+	resp.Respmsg = ""
+	resp.Data = nil
+	respStr, _ := json.Marshal(resp)
+	w.Write(respStr)
+	return
 }

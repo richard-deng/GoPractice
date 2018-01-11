@@ -239,7 +239,7 @@ $(document).ready(function(){
             'echo_password': new_password,
         };
         $.ajax({
-            url: '/channel_op/v1/api/user_change_password',
+            url: '/api/user/password/change',
             type: 'POST',
             dataType: 'json',
             data: post_data,
