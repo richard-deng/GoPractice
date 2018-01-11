@@ -409,7 +409,7 @@ func QueryRuleNames(db *sql.DB) []string {
 func UpdatePasswordById(userId int64, password string) {
 	db := GetConn()
 	defer db.Close()
-	var updateSql = "update auth_user set password ? where id = ?"
+	var updateSql = "update auth_user set password = ? where id = ?"
 	_, err := db.Exec(updateSql, password, userId)
 	if err != nil {
 		panic(err)

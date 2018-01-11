@@ -204,7 +204,7 @@ func UserChangePasswordHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	fullPassword := GenPassword(password)
 	UpdatePasswordById(UserId, fullPassword)
-	resp.Respcd = ""
+	resp.Respcd = "0000"
 	resp.Resperr = ""
 	resp.Respmsg = ""
 	resp.Data = nil
