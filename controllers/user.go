@@ -29,7 +29,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
 		renderTemplate(w, "login", "login_base", nil)
 	} else if r.Method == "POST" {
-		log.Println("Body", r.Body)
 		resp := model.Response{}
 		log.Println("do index post request")
 		err := r.ParseForm()
