@@ -6,6 +6,7 @@ import (
 
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
+	"fmt"
 )
 
 func GetConn() *sql.DB{
@@ -220,11 +221,24 @@ func calcRowsLen(rows *sql.Rows) (int) {
 	return count
 }
 
-func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64) []model.User {
+func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName, nickName string) []model.User {
 	var allUser []model.User
+	var rows *sql.Rows
+	var err error
+	var querySql string
 	offset, limit := genOffset(currSize, pageSize)
-	rows, err := db.Query("select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user limit ? offset ?", limit, offset)
-
+    if phoneNum == "" && loginName == "" && nickName == "" {
+		querySql = "select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user limit ? offset ?"
+		rows, err = db.Query(querySql, limit, offset)
+	} else {
+		where := InitUserWhere(phoneNum, loginName, nickName)
+		if where != "" {
+			var querySql = "select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user where %s limit %d offset %d"
+			querySql = fmt.Sprintf(querySql, where, limit, offset)
+			log.Println("sql", querySql)
+			rows, err = db.Query(querySql)
+		}
+	}
 	if err != nil {
 		panic(err)
 	}

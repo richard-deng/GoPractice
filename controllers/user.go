@@ -89,11 +89,6 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserHandler(w http.ResponseWriter, r *http.Request)  {
-	log.Println("page", r.PostFormValue("page"))
-	log.Println("maxnum", r.PostFormValue("maxnum"))
-	log.Println("Form", r.Form)
-	sessionId, _ := r.Cookie("sessionid")
-	log.Println("cookies", sessionId)
 	resp := model.Response{}
 	if r.Method != "POST" {
 		resp.Respcd = "1000"	//方法不对
@@ -103,22 +98,16 @@ func UserHandler(w http.ResponseWriter, r *http.Request)  {
 		respStr, _ := json.Marshal(resp)
 		w.Write(respStr)
 	}
-	/*
-	err := r.ParseForm()
-	if err != nil {
-		panic(err)
-	}
-	val := r.PostForm
-	log.Println(val)
-	page, _ := strconv.ParseInt(val["page"][0], 10, 32)
-	maxNum, _ := strconv.ParseInt(val["maxnum"][0],10, 32)
-	*/
 	page, _ := strconv.ParseInt(r.PostFormValue("page"), 10, 64)
 	maxNum, _:= strconv.ParseInt(r.PostFormValue("maxnum"), 10, 64)
+	phoneNum := r.PostFormValue("phone_num")
+	loginName := r.PostFormValue("login_name")
+	nickName := r.PostFormValue("nick_name")
+	log.Println("phoneNum:", phoneNum)
 	log.Printf("page: %d, num: %d", page, maxNum)
 	db := GetConn()
 	defer db.Close()
-	allUser := QueryAllUsersInfo(db, page, maxNum)
+	allUser := QueryAllUsersInfo(db, page, maxNum, phoneNum, loginName, nickName)
 
 	type MyData struct {
 		Info []model.User	`json:"info"`
