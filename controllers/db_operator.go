@@ -186,13 +186,21 @@ func genOffset(page, maxNum int64) (offset, limit int64 ) {
 	return offset, limit
 }
 
-func QueryUsersAllTotal(db *sql.DB) int {
-	rows, err := db.Query("select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user")
-	defer rows.Close()
-	if err != nil {
-		panic(err)
+func QueryUsersAllTotal(db *sql.DB, phoneNum, loginName, nickName string) int64 {
+	var total sql.NullInt64
+	if phoneNum == "" && loginName == "" && nickName == "" {
+		db.QueryRow("select count(*) as total from auth_user").Scan(&total)
+	} else {
+		var whereMap = map[string]string{}
+		whereMap["phone_num"] = phoneNum
+		whereMap["login_name"] = loginName
+		whereMap["nick_name"] = nickName
+		where := BuildWhere(whereMap)
+		if where != "" {
+			db.QueryRow("select count(*) as total from auth_user where ?", where).Scan(&total)
+		}
 	}
-	return calcRowsLen(rows)
+	return total.Int64
 }
 
 func QueryChannelAllTotal(db *sql.DB) int {
@@ -231,7 +239,11 @@ func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName
 		querySql = "select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user limit ? offset ?"
 		rows, err = db.Query(querySql, limit, offset)
 	} else {
-		where := InitUserWhere(phoneNum, loginName, nickName)
+		var whereMap = map[string]string{}
+		whereMap["phone_num"] = phoneNum
+		whereMap["login_name"] = loginName
+		whereMap["nick_name"] = nickName
+		where := BuildWhere(whereMap)
 		if where != "" {
 			var querySql = "select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user where %s limit %d offset %d"
 			querySql = fmt.Sprintf(querySql, where, limit, offset)
@@ -293,6 +305,7 @@ func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName
 		log.Println(user)
 		allUser = append(allUser, user)
 	}
+	log.Println("allUser:", allUser)
 	return allUser
 }
 

@@ -111,12 +111,21 @@ func UserHandler(w http.ResponseWriter, r *http.Request)  {
 
 	type MyData struct {
 		Info []model.User	`json:"info"`
-		Num  int            `json:"num"`
+		Num  int64          `json:"num"`
 	}
-	totalNum := QueryUsersAllTotal(db)
+	totalNum := QueryUsersAllTotal(db, phoneNum, loginName, nickName)
+	/*
 	myData := MyData{
 		allUser,
 		totalNum,
+	}
+	*/
+	myData := MyData{}
+	if totalNum == 0 {
+		myData.Info = []model.User{}
+	} else {
+		myData.Info = allUser
+		myData.Num = totalNum
 	}
 	resp.Respcd = "0000"
 	resp.Resperr = ""

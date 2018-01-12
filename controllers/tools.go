@@ -1,24 +1,17 @@
 package controllers
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
-func InitUserWhere(phoneNum, loginName, nickName string) string {
-	whereStr := ""
+func BuildWhere(whereMap map[string]string) string {
 	var whereArr []string
-	var where = map[string]string{}
-	where["phone_num"] = phoneNum
-	where["login_name"] = loginName
-	where["nick_name"] = nickName
-	fmt.Println(where)
-	for key := range where {
-		if where[key] != "" {
-			whereArr = append(whereArr, fmt.Sprintf("%s=\"%s\"", key, where[key]))
+	for key := range whereMap {
+		if whereMap[key] != "" {
+			whereArr = append(whereArr, fmt.Sprintf("%s=\"%s\"", key, whereMap[key]))
 		}
 	}
-	fmt.Println(whereArr)
-	for _, v := range whereArr {
-		whereStr += v
-		whereStr += " "
-	}
+	whereStr := strings.Join(whereArr, " and ")
 	return whereStr
 }
