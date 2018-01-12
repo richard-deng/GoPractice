@@ -18,16 +18,9 @@ func ChannelHandler(w http.ResponseWriter, r *http.Request) {
 		str, _ := json.Marshal(resp)
 		w.Write(str)
 	}
-	err := r.ParseForm()
-	if err != nil {
-		log.Panic(err)
-	}
-	log.Println("test here")
-	val := r.PostForm
-	log.Println(val)
 	log.Println("test here end")
-	page, _ := strconv.ParseInt(val["page"][0], 10, 32)
-	maxNum, _ := strconv.ParseInt(val["maxnum"][0],10, 32)
+	page, _ := strconv.ParseInt(r.PostFormValue("page"), 10, 64)
+	maxNum, _:= strconv.ParseInt(r.PostFormValue("maxnum"), 10, 64)
 	log.Printf("page: %d, num: %d", page, maxNum)
 	db := GetConn()
 	defer db.Close()
