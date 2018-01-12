@@ -108,18 +108,11 @@ func UserHandler(w http.ResponseWriter, r *http.Request)  {
 	db := GetConn()
 	defer db.Close()
 	allUser := QueryAllUsersInfo(db, page, maxNum, phoneNum, loginName, nickName)
-
 	type MyData struct {
 		Info []model.User	`json:"info"`
 		Num  int64          `json:"num"`
 	}
 	totalNum := QueryUsersAllTotal(db, phoneNum, loginName, nickName)
-	/*
-	myData := MyData{
-		allUser,
-		totalNum,
-	}
-	*/
 	myData := MyData{}
 	if totalNum == 0 {
 		myData.Info = []model.User{}
