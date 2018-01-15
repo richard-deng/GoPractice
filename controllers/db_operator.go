@@ -7,6 +7,8 @@ import (
 	"database/sql"
 	_ "github.com/go-sql-driver/mysql"
 	"fmt"
+	"strings"
+	"strconv"
 )
 
 func GetConn() *sql.DB{
@@ -512,4 +514,28 @@ func UpdatePasswordById(userId int64, password string) {
 		panic(err)
 		return
 	}
+}
+
+func CreateRule(rule map[string]string, intArr []string) {
+    var str string
+    var insertSql string
+	var arr []string
+	for key := range rule {
+		if key != "" {
+			if len(intArr) > 0 && golangIn(key, intArr) {
+				value, _ := strconv.ParseInt(rule[key], 10, 64)
+				str = fmt.Sprintf("%s=%d", key, value)
+			} else {
+				str = fmt.Sprintf("%s=\"%s\"", key, rule[key])
+			}
+			arr = append(arr, str)
+		}
+	}
+	var respStr = strings.Join(arr, ", ")
+    insertSql = "insert into rules set %s"
+    insertSql = fmt.Sprintf(insertSql, respStr)
+	log.Println("create rule insert sql", insertSql)
+	db := GetConn()
+	defer db.Close()
+	db.Exec(insertSql)
 }

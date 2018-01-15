@@ -31,6 +31,7 @@ func main() {
 	mux.Handle("/api/channel/names/all", http.HandlerFunc(controllers.ChannelNamesHandler))
 	mux.Handle("/api/rule/all", http.HandlerFunc(controllers.RuleHandler))
 	mux.Handle("/api/rule/names/all", http.HandlerFunc(controllers.RuleNamesHandler))
+	mux.Handle("/api/rule/create", http.HandlerFunc(controllers.RuleCreateHandler))
 
 	//启动服务
 	log.Println("Listening :8080")

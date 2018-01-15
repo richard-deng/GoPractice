@@ -70,3 +70,37 @@ func RuleNamesHandler(w http.ResponseWriter, r *http.Request)  {
 	w.Write(str)
 	return
 }
+
+func RuleCreateHandler(w http.ResponseWriter, r *http.Request) {
+	resp := model.Response{}
+	if r.Method != "POST" {
+		resp.Resperr = "1000"
+		resp.Resperr = "请求方法错误"
+		resp.Respmsg = "请求方法错误"
+		resp.Data = nil
+		str, _ := json.Marshal(resp)
+		w.Write(str)
+		return
+	}
+	var name = r.PostFormValue("name")
+	var totalAmt = r.PostFormValue("total_amt")
+	var trainingTimes = r.PostFormValue("training_times")
+	var description = r.PostFormValue("description")
+
+	var intArr []string
+	intArr = append(intArr, "total_amt")
+	intArr = append(intArr, "training_times")
+    var create = map[string]string{}
+    create["name"] = name
+    create["total_amt"] = totalAmt
+    create["training_times"] = trainingTimes
+    create["description"] = description
+	CreateRule(create, intArr)
+	resp.Respmsg = ""
+	resp.Resperr = ""
+	resp.Respcd ="0000"
+	resp.Data = nil
+	str, _ := json.Marshal(resp)
+	w.Write(str)
+	return
+}
