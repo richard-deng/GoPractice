@@ -18,31 +18,27 @@ func RuleHandler(w http.ResponseWriter, r *http.Request) {
 		str, _ := json.Marshal(resp)
 		w.Write(str)
 	}
-	err := r.ParseForm()
-	if err != nil {
-		log.Panic(err)
-	}
-	log.Println("test here")
-	val := r.PostForm
-	log.Println(val)
-	log.Println("test here end")
-	page, _ := strconv.ParseInt(val["page"][0], 10, 32)
-	maxNum, _ := strconv.ParseInt(val["maxnum"][0],10, 32)
-	log.Printf("page: %d, num: %d", page, maxNum)
+	page, _ := strconv.ParseInt(r.PostFormValue("page"), 10, 64)
+	maxNum, _:= strconv.ParseInt(r.PostFormValue("maxnum"), 10, 64)
+	var name = r.PostFormValue("name")
+	log.Printf("page: %d, num: %d, name: %s", page, maxNum, name)
 	db := GetConn()
 	defer db.Close()
-	allRule := QueryRuleInfo(db, page, maxNum)
+	allRule := QueryRuleInfo(db, page, maxNum, name)
 	log.Println("allRule")
 	log.Println(allRule)
-	totalNum := QueryRuleAllTotal(db)
+	totalNum := QueryRuleAllTotal(db, name)
 	type MyData struct {
 		Info []model.Rule	`json:"info"`
-		Num  int            `json:"num"`
+		Num  int64            `json:"num"`
 	}
-	data := MyData{
-		allRule,
-		totalNum,
+	data := MyData{}
+	if totalNum == 0 {
+		data.Info = []model.Rule{}
+	} else {
+		data.Info = allRule
 	}
+	data.Num = totalNum
 	resp.Respcd = "0000"
 	resp.Resperr = ""
 	resp.Respmsg = ""

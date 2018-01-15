@@ -241,13 +241,21 @@ func QueryChannelAllTotal(db *sql.DB, isPrepayment, isValid, channelName, phoneN
 	*/
 }
 
-func QueryRuleAllTotal(db *sql.DB) int {
-	rows, err := db.Query("select id from rules")
-	defer rows.Close()
-	if err != nil {
-		panic(err)
+func QueryRuleAllTotal(db *sql.DB, Name string) int64 {
+    var total sql.NullInt64
+    if Name == "" {
+    	db.QueryRow("select count(*) as total from rules").Scan(&total)
+	} else {
+		var intArr []string
+		var whereMap = map[string]string{}
+		whereMap["name"] = Name
+		where := BuildWhere(whereMap, intArr)
+		var querySql string
+		querySql = "select count(*) as total from rules where %s"
+		querySql = fmt.Sprintf(querySql, where)
+		db.QueryRow(querySql).Scan(&total)
 	}
-	return calcRowsLen(rows)
+	return total.Int64
 }
 
 func calcRowsLen(rows *sql.Rows) (int) {
@@ -431,10 +439,24 @@ func QueryChannelNames(db *sql.DB) []string {
 	return names
 }
 
-func QueryRuleInfo(db *sql.DB, currSize, pageSize int64) []model.Rule {
+func QueryRuleInfo(db *sql.DB, currSize, pageSize int64, Name string) []model.Rule {
     var allRule []model.Rule
+    var rows *sql.Rows
+    var err error
+
 	offset, limit := genOffset(currSize, pageSize)
-	rows, err := db.Query("select id, name, total_amt, training_times, description, ctime, utime, is_valid from rules limit ? offset ? ", limit, offset)
+	if Name == "" {
+		rows, err = db.Query("select id, name, total_amt, training_times, description, ctime, utime, is_valid from rules limit ? offset ? ", limit, offset)
+	} else {
+		var intArr []string
+		var whereMap = map[string]string{}
+		whereMap["name"] = Name
+		where := BuildWhere(whereMap, intArr)
+		var querySql string
+		querySql = "select id, name, total_amt, training_times, description, ctime, utime, is_valid from rules where %s limit %d offset %d"
+		querySql = fmt.Sprintf(querySql, where, limit, offset)
+		rows, err = db.Query(querySql)
+	}
 	if err != nil {
 		panic(err)
 	}
