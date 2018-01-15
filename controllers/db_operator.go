@@ -252,14 +252,6 @@ func QueryRuleAllTotal(db *sql.DB, Name string) int64 {
 	return total.Int64
 }
 
-func calcRowsLen(rows *sql.Rows) (int) {
-	count := 0
-	for rows.Next() {
-		count ++
-	}
-	return count
-}
-
 func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName, nickName string) []model.User {
 	var allUser []model.User
 	var rows *sql.Rows
