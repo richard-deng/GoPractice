@@ -191,25 +191,54 @@ func QueryUsersAllTotal(db *sql.DB, phoneNum, loginName, nickName string) int64 
 	if phoneNum == "" && loginName == "" && nickName == "" {
 		db.QueryRow("select count(*) as total from auth_user").Scan(&total)
 	} else {
+		var intArr []string
 		var whereMap = map[string]string{}
 		whereMap["phone_num"] = phoneNum
 		whereMap["login_name"] = loginName
 		whereMap["nick_name"] = nickName
-		where := BuildWhere(whereMap)
+		where := BuildWhere(whereMap, intArr)
 		if where != "" {
-			db.QueryRow("select count(*) as total from auth_user where ?", where).Scan(&total)
+			var querySql = "select count(*) as total from auth_user where %s"
+			querySql = fmt.Sprintf(querySql, where)
+			//db.QueryRow("select count(*) as total from auth_user where ?", where).Scan(&total)
+			db.QueryRow(querySql).Scan(&total)
 		}
 	}
 	return total.Int64
 }
 
-func QueryChannelAllTotal(db *sql.DB) int {
+func QueryChannelAllTotal(db *sql.DB, isPrepayment, isValid, channelName, phoneNum string) int64 {
+	var total sql.NullInt64
+	if isPrepayment == "" && isValid == "" && channelName == "" && phoneNum == "" {
+		db.QueryRow("select count(*) as total from channel").Scan(&total)
+	} else {
+		var intArr []string
+		intArr = append(intArr, "is_prepayment")
+		intArr = append(intArr, "is_valid")
+		var whereMap = map[string]string{}
+		whereMap["is_prepayment"] = isPrepayment
+		whereMap["is_valid"] = isValid
+		whereMap["channel_name"] = channelName
+		whereMap["phone_num"] = phoneNum
+		where := BuildWhere(whereMap, intArr)
+		if where != "" {
+			log.Println("query channel all ")
+			var querySql = "select count(*) as total from channel where %s"
+			querySql = fmt.Sprintf(querySql, where)
+			log.Println("sql where ", querySql)
+			//db.QueryRow("select count(*) as total from channel where ?", where).Scan(&total)
+			db.QueryRow(querySql).Scan(&total)
+		}
+	}
+	return total.Int64
+	/*
 	rows, err := db.Query("select id from channel")
 	defer rows.Close()
 	if err != nil {
 		panic(err)
 	}
 	return calcRowsLen(rows)
+	*/
 }
 
 func QueryRuleAllTotal(db *sql.DB) int {
@@ -239,11 +268,12 @@ func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName
 		querySql = "select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user limit ? offset ?"
 		rows, err = db.Query(querySql, limit, offset)
 	} else {
+		var intArr []string
 		var whereMap = map[string]string{}
 		whereMap["phone_num"] = phoneNum
 		whereMap["login_name"] = loginName
 		whereMap["nick_name"] = nickName
-		where := BuildWhere(whereMap)
+		where := BuildWhere(whereMap, intArr)
 		if where != "" {
 			var querySql = "select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user where %s limit %d offset %d"
 			querySql = fmt.Sprintf(querySql, where, limit, offset)
@@ -309,51 +339,77 @@ func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName
 	return allUser
 }
 
-func QueryAllChannelInfo(db *sql.DB, currSize, pageSize int64) []model.Channel {
-	var all_channel []model.Channel
+func QueryAllChannelInfo(db *sql.DB, currSize, pageSize int64, isPrepayment, isValid, channelName, phoneNum string) []model.Channel {
+	var allChannel []model.Channel
+	var rows *sql.Rows
+	var err error
+	var querySql string
 	offset, limit := genOffset(currSize, pageSize)
-	rows, err := db.Query("select id, userid, remain_times, training_amt_per, divide_percent, status, is_valid, is_prepayment, ctime, utime, channel_name from channel limit ? offset ? ", limit, offset)
-
-	if err != nil {
-		panic(err)
+	if isPrepayment == "" && isValid == "" && channelName == "" && phoneNum == "" {
+		querySql = "select id, userid, remain_times, training_amt_per, divide_percent, status, is_valid, is_prepayment, ctime, utime, channel_name from channel limit %d offset %d "
+		querySql = fmt.Sprintf(querySql, limit, offset)
+		log.Println("sql", querySql)
+		rows, err = db.Query(querySql)
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		var intArr []string
+		intArr = append(intArr, "is_prepayment")
+		intArr = append(intArr, "is_valid")
+		var whereMap = map[string]string{}
+		whereMap["is_prepayment"] = isPrepayment
+		whereMap["is_valid"] = isValid
+		whereMap["channel_name"] = channelName
+		whereMap["phone_num"] = phoneNum
+		where := BuildWhere(whereMap, intArr)
+		if where != "" {
+			querySql = "select id, userid, remain_times, training_amt_per, divide_percent, status, is_valid, is_prepayment, ctime, utime, channel_name from channel where %s limit %d offset %d "
+			querySql = fmt.Sprintf(querySql, where, limit, offset)
+			log.Println("sql where", querySql)
+			rows, err = db.Query(querySql)
+			if err != nil {
+				panic(err)
+			}
+		}
 	}
 
 	for rows.Next() {
-		var channel_name, ctime, utime sql.NullString
-		var id, userid sql.NullInt64
-		var remain_times, training_amt_per, status, is_valid, is_prepayment sql.NullInt64
-		var divide_percent sql.NullFloat64
+		var channelName, cTime, uTime sql.NullString
+		var id, userId sql.NullInt64
+		var remainTimes, trainingAmtPer, status, isValid, isPrepayment sql.NullInt64
+		var dividePercent sql.NullFloat64
 		var channel model.Channel
-		err := rows.Scan(&id, &userid, &remain_times, &training_amt_per, &divide_percent, &status, &is_valid, &is_prepayment, &ctime, &utime, &channel_name)
+		err := rows.Scan(&id, &userId, &remainTimes, &trainingAmtPer, &dividePercent, &status, &isValid, &isPrepayment, &cTime, &uTime, &channelName)
         if err != nil {
         	panic(err)
 		}
 		channel.Id = id.Int64
-		channel.Userid = userid.Int64
-		channel.Remain_times = remain_times.Int64
-		channel.Training_amt_per = training_amt_per.Int64
-		channel.Divide_percent = divide_percent.Float64
+		channel.Userid = userId.Int64
+		channel.Remain_times = remainTimes.Int64
+		channel.Training_amt_per = trainingAmtPer.Int64
+		channel.Divide_percent = dividePercent.Float64
 		channel.Status = status.Int64
-		channel.Is_valid = is_valid.Int64
-		channel.Is_prepayment = is_prepayment.Int64
-		if ctime.Valid {
-			channel.Ctime = ctime.String
+		channel.Is_valid = isValid.Int64
+		channel.Is_prepayment = isPrepayment.Int64
+		if cTime.Valid {
+			channel.Ctime = cTime.String
 		} else {
 			channel.Ctime = ""
 		}
-		if utime.Valid {
-			channel.Utime = utime.String
+		if uTime.Valid {
+			channel.Utime = uTime.String
 		} else {
 			channel.Utime = ""
 		}
-		if channel_name.Valid {
-			channel.Channel_name = channel_name.String
+		if channelName.Valid {
+			channel.Channel_name = channelName.String
 		} else {
 			channel.Channel_name = ""
 		}
-        all_channel = append(all_channel, channel)
+        allChannel = append(allChannel, channel)
 	}
-	return all_channel
+	return allChannel
 }
 
 func QueryChannelNames(db *sql.DB) []string {
