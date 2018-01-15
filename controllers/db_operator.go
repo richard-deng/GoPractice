@@ -231,14 +231,6 @@ func QueryChannelAllTotal(db *sql.DB, isPrepayment, isValid, channelName, phoneN
 		}
 	}
 	return total.Int64
-	/*
-	rows, err := db.Query("select id from channel")
-	defer rows.Close()
-	if err != nil {
-		panic(err)
-	}
-	return calcRowsLen(rows)
-	*/
 }
 
 func QueryRuleAllTotal(db *sql.DB, Name string) int64 {
