@@ -4,7 +4,18 @@ import (
 	"log"
 	"net/http"
 	"build_web/GoPractice/controllers"
+	"time"
 )
+
+func logginHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
+		start := time.Now()
+		log.Printf("Started %s %s", r.Method, r.URL.Path)
+		next.ServeHTTP(w, r)
+		log.Printf("Complete %s in %v", r.URL.Path, time.Since(start))
+	})
+}
+
 
 func main() {
 	//新建一个处理Handle
@@ -17,7 +28,7 @@ func main() {
 	mux.Handle("/", fs)
 
 	//页面
-	mux.Handle("/login.html", http.HandlerFunc(controllers.Login))
+	mux.Handle("/login.html", logginHandler(http.HandlerFunc(controllers.Login)))
 	mux.Handle("/overview.html", http.HandlerFunc(controllers.Overview))
 	mux.Handle("/users.html", http.HandlerFunc(controllers.UserView))
 	mux.Handle("/channel.html", http.HandlerFunc(controllers.ChannelView))
