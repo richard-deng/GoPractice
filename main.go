@@ -1,6 +1,7 @@
 package main
 
 import (
+	//"os"
 	"log"
 	"net/http"
 	"build_web/GoPractice/controllers"
@@ -18,6 +19,9 @@ func logHandler(next http.Handler) http.Handler {
 
 
 func main() {
+	// 初始化日志
+    controllers.InitLogFile()
+
 	//新建一个处理Handle
 	mux := http.NewServeMux()
 

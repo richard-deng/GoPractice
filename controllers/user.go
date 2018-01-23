@@ -11,6 +11,10 @@ import (
 	"fmt"
 )
 
+func init() {
+	InitLogFile()
+}
+
 /*
 登录处理
 Flow:
@@ -24,8 +28,8 @@ Flow:
     2.不存在则直接返回不存在的错误信息
  */
 func Login(w http.ResponseWriter, r *http.Request) {
-
 	log.Println(r.Method, r.URL.Path)
+	log.Println("hello world")
 	if r.Method == "GET" {
 		renderTemplate(w, "login", "login_base", nil)
 	} else if r.Method == "POST" {
