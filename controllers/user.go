@@ -1,15 +1,17 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 	"encoding/json"
 	"build_web/GoPractice/model"
+	"build_web/GoPractice/dlog"
 	"strconv"
 
 	"github.com/satori/go.uuid"
 	"fmt"
 )
+
+
 
 /*
 登录处理
@@ -24,19 +26,19 @@ Flow:
     2.不存在则直接返回不存在的错误信息
  */
 func Login(w http.ResponseWriter, r *http.Request) {
-
-	log.Println(r.Method, r.URL.Path)
+	dlog.Info.Println(r.Method, r.URL.Path)
+	dlog.Info.Println("hello world")
 	if r.Method == "GET" {
 		renderTemplate(w, "login", "login_base", nil)
 	} else if r.Method == "POST" {
 		resp := model.Response{}
-		log.Println("do index post request")
+		dlog.Info.Println("do index post request")
 		err := r.ParseForm()
 		if err != nil {
 			panic(err)
 		}
 		val := r.PostForm
-		log.Println(val)
+		dlog.Info.Println(val)
 		mobile := val["mobile"][0]
 		db := GetConn()
 		defer db.Close()
@@ -46,16 +48,16 @@ func Login(w http.ResponseWriter, r *http.Request) {
 			resp.Respmsg = "该用户不存在"
 			resp.Respcd = "2000"
 			resp.Data = nil
-			log.Println(resp)
+			dlog.Info.Println(resp)
 			str, _ := json.Marshal(resp)
 			w.Write(str)
 			return
 		}
-		log.Println("db_password", user.Password)
+		dlog.Info.Println("db_password", user.Password)
 		password := val["password"][0]
-		log.Printf("my mobile is: %s, password is: %s", string(mobile), string(password))
+		dlog.Info.Printf("my mobile is: %s, password is: %s", string(mobile), string(password))
 		flagCheck := CheckPassword(user.Password, password)
-		log.Printf("password check result=%s", flagCheck)
+		dlog.Info.Printf("password check result=%s", flagCheck)
 		type MyData struct {
 			UserId int64 `json:"userid"`
 		}
@@ -65,7 +67,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		resp.Resperr = ""
 		resp.Respmsg = ""
 		resp.Data = my
-		log.Println("resp:", resp)
+		dlog.Info.Println("resp:", resp)
 		responseStr, _ := json.Marshal(resp)
 
 		u4, err := uuid.NewV4()
@@ -83,7 +85,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Set-Cookie", cookie.String())
 		w.Write(responseStr)
 	} else {
-		log.Fatalln("not supported method")
+		dlog.Warning.Println("not supported method")
 		return
 	}
 }
@@ -98,34 +100,34 @@ func UserHandler(w http.ResponseWriter, r *http.Request)  {
 		respStr, _ := json.Marshal(resp)
 		w.Write(respStr)
 	}
-	err := r.ParseForm()
-	if err != nil {
-		panic(err)
-	}
-	val := r.PostForm
-	log.Println(val)
-	page, _ := strconv.ParseInt(val["page"][0], 10, 32)
-	maxNum, _ := strconv.ParseInt(val["maxnum"][0],10, 32)
-	log.Printf("page: %d, num: %d", page, maxNum)
+	page, _ := strconv.ParseInt(r.PostFormValue("page"), 10, 64)
+	maxNum, _:= strconv.ParseInt(r.PostFormValue("maxnum"), 10, 64)
+	phoneNum := r.PostFormValue("phone_num")
+	loginName := r.PostFormValue("login_name")
+	nickName := r.PostFormValue("nick_name")
+	dlog.Info.Println("phoneNum:", phoneNum)
+	dlog.Info.Printf("page: %d, num: %d", page, maxNum)
 	db := GetConn()
 	defer db.Close()
-	allUser := QueryAllUsersInfo(db, page, maxNum)
-
+	allUser := QueryAllUsersInfo(db, page, maxNum, phoneNum, loginName, nickName)
 	type MyData struct {
 		Info []model.User	`json:"info"`
-		Num  int            `json:"num"`
+		Num  int64          `json:"num"`
 	}
-	totalNum := QueryUsersAllTotal(db)
-	myData := MyData{
-		allUser,
-		totalNum,
+	totalNum := QueryUsersAllTotal(db, phoneNum, loginName, nickName)
+	myData := MyData{}
+	if totalNum == 0 {
+		myData.Info = []model.User{}
+	} else {
+		myData.Info = allUser
+		myData.Num = totalNum
 	}
 	resp.Respcd = "0000"
 	resp.Resperr = ""
 	resp.Respmsg = ""
 	resp.Data = myData
 	respStr, _ := json.Marshal(resp)
-	log.Println(string(respStr))
+	dlog.Info.Println(string(respStr))
 	w.Write(respStr)
 }
 
@@ -144,13 +146,13 @@ func UserInfoByPhoneNumber(w http.ResponseWriter, r *http.Request) {
 		panic(err)
 	}
 	val := r.PostForm
-	log.Println(val)
+	dlog.Info.Println(val)
 	mobile := val["mobile"][0]
-	log.Printf("mobile %s", mobile)
+	dlog.Info.Printf("mobile %s", mobile)
 	db := GetConn()
 	defer db.Close()
 	user := QueryByPhoneNumber(db, mobile)
-	log.Println(user)
+	dlog.Info.Println(user)
 	if user.Valid() {
 		resp.Data = user
 		resp.Respcd = "0000"
@@ -163,12 +165,12 @@ func UserInfoByPhoneNumber(w http.ResponseWriter, r *http.Request) {
 		resp.Resperr = "用户不存在"
 	}
 	respStr, _ := json.Marshal(resp)
-	log.Println(string(respStr))
+	dlog.Info.Println(string(respStr))
 	w.Write(respStr)
 }
 
 func UserChangePasswordHandler(w http.ResponseWriter, r *http.Request) {
-	log.Println("change password Method:", r.Method)
+	dlog.Info.Println("change password Method:", r.Method)
 	resp := model.Response{}
 	if r.Method != "POST" {
 		resp.Respcd = "1000"

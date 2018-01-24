@@ -1,7 +1,7 @@
 package model
 
 import (
-	"log"
+	"build_web/GoPractice/dlog"
 )
 
 type Response struct {
@@ -55,7 +55,7 @@ type Rule struct {
 }
 
 func (u User) Valid() bool {
-	log.Printf("user id=%d", u.Id)
+	dlog.Info.Printf("user id=%d", u.Id)
 	if u.Id != 0 {
 		return true
 	}
