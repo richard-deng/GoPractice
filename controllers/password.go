@@ -2,13 +2,15 @@ package controllers
 
 
 import(
-	"log"
 	"time"
 	"math/rand"
 	"crypto/sha1"
 	"encoding/hex"
 	"strings"
+	"build_web/GoPractice/dlog"
 )
+
+
 
 const (
 	KC_RAND_KIND_NUM   = 0	// 纯数字
@@ -35,27 +37,27 @@ func RandStr(size int, kind int) []byte {
 func GenPassword(md5Password string) string {
 	result := RandStr(5, KC_RAND_KIND_ALL)
 	randomStr := string(result)
-	log.Println(randomStr)
+	dlog.Info.Println(randomStr)
 	newStr := randomStr + md5Password
-	log.Println(newStr)
+	dlog.Info.Println(newStr)
     r := sha1.Sum([]byte(newStr))
 	sha1Hex := hex.EncodeToString(r[:])
-	log.Println(sha1Hex)
+	dlog.Info.Println(sha1Hex)
 	//return string(sha1Hex)
 	return "sha1" + "$" + randomStr + "$" + string(sha1Hex)
 }
 
 func CheckPassword(fullPassword string, md5Password string) bool {
-	log.Printf("full password=%s", fullPassword)
+	dlog.Info.Printf("full password=%s", fullPassword)
 	all := strings.Split(fullPassword, "$")
 	salt := all[1]
 	password := all[2]
-	log.Printf("salt=%s|password=%s", salt, password)
+	dlog.Info.Printf("salt=%s|password=%s", salt, password)
 	newStr := salt + md5Password
-	log.Printf("new str=%s", newStr)
+	dlog.Info.Printf("new str=%s", newStr)
 	r := sha1.Sum([]byte(newStr))
 	sha1Hex := hex.EncodeToString(r[:])
-	log.Println(sha1Hex)
+	dlog.Info.Println(sha1Hex)
     if string(sha1Hex) != password {
     	return false
 	}

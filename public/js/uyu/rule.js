@@ -180,7 +180,7 @@ $(document).ready(function () {
         post_data.description = description;
 
         $.ajax({
-            url: '/channel_op/v1/api/rule_create',
+            url: '/api/rule/create',
             type: 'POST',
             dataType: 'json',
             data: post_data,
