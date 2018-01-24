@@ -15,7 +15,7 @@ var (
 )
 
 func init() {
-	logFile, err := os.OpenFile("./" + time.Now().Format("20060102") + ".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("./" + time.Now().Format("20180101") + ".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		fmt.Println(err)
 	}
