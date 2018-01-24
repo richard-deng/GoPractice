@@ -8,12 +8,11 @@ import (
 )
 
 func BuildWhere(whereMap map[string]string, intArr []string) string {
-	var log = dlog.DcLog()
 	var whereArr []string
 	for key := range whereMap {
 		if whereMap[key] != "" {
 			if len(intArr) > 0 && golangIn(key, intArr) {
-				log.Println("int arr")
+				dlog.Warning.Println("int arr")
 				v, _ := strconv.ParseInt(whereMap[key], 10, 64)
 				whereArr = append(whereArr, fmt.Sprintf("%s=%d", key, v))
 			} else {
@@ -22,12 +21,11 @@ func BuildWhere(whereMap map[string]string, intArr []string) string {
 		}
 	}
 	whereStr := strings.Join(whereArr, " and ")
-	log.Println("whereStr", whereStr)
+	dlog.Info.Println("whereStr", whereStr)
 	return whereStr
 }
 
 func golangIn(name string, arr []string) bool {
-	var log = dlog.DcLog()
 	var flag = false
 	for _, v := range arr {
 		if name == v {
@@ -35,6 +33,6 @@ func golangIn(name string, arr []string) bool {
 			break
 		}
 	}
-	log.Println("name", name, "arr", arr, "flag", flag)
+	dlog.Info.Println("name", name, "arr", arr, "flag", flag)
 	return flag
 }

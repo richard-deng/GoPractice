@@ -11,7 +11,6 @@ import (
 
 
 func RuleHandler(w http.ResponseWriter, r *http.Request) {
-	var log = dlog.DcLog()
 	resp := model.Response{}
 	if r.Method != "POST" {
 		resp.Respcd = "1000"
@@ -24,12 +23,12 @@ func RuleHandler(w http.ResponseWriter, r *http.Request) {
 	page, _ := strconv.ParseInt(r.PostFormValue("page"), 10, 64)
 	maxNum, _:= strconv.ParseInt(r.PostFormValue("maxnum"), 10, 64)
 	var name = r.PostFormValue("name")
-	log.Printf("page: %d, num: %d, name: %s", page, maxNum, name)
+	dlog.Info.Printf("page: %d, num: %d, name: %s", page, maxNum, name)
 	db := GetConn()
 	defer db.Close()
 	allRule := QueryRuleInfo(db, page, maxNum, name)
-	log.Println("allRule")
-	log.Println(allRule)
+	dlog.Info.Println("allRule")
+	dlog.Info.Println(allRule)
 	totalNum := QueryRuleAllTotal(db, name)
 	type MyData struct {
 		Info []model.Rule	`json:"info"`
@@ -47,7 +46,7 @@ func RuleHandler(w http.ResponseWriter, r *http.Request) {
 	resp.Respmsg = ""
 	resp.Data = data
 	str, _ := json.Marshal(resp)
-	log.Println(string(str))
+	dlog.Info.Println(string(str))
 	w.Write(str)
 }
 

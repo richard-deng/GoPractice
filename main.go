@@ -7,14 +7,13 @@ import (
 	"time"
 )
 
-var log = dlog.DcLog()
 
 func logHandler(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request){
 		start := time.Now()
-		log.Printf("Started %s %s", r.Method, r.URL.Path)
+		dlog.Info.Printf("Started %s %s", r.Method, r.URL.Path)
 		next.ServeHTTP(w, r)
-		log.Printf("Complete %s in %v", r.URL.Path, time.Since(start))
+		dlog.Info.Printf("Complete %s in %v", r.URL.Path, time.Since(start))
 	})
 }
 
@@ -48,6 +47,6 @@ func main() {
 	mux.Handle("/api/rule/create", logHandler(http.HandlerFunc(controllers.RuleCreateHandler)))
 
 	//启动服务
-	log.Println("Listening :8080")
+	dlog.Info.Println("Listening :8080")
 	http.ListenAndServe(":8080", mux)
 }

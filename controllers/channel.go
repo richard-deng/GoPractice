@@ -10,7 +10,6 @@ import (
 
 
 func ChannelHandler(w http.ResponseWriter, r *http.Request) {
-	var log = dlog.DcLog()
 	resp := model.Response{}
 	if r.Method != "POST" {
 		resp.Respcd = "1000"
@@ -20,20 +19,20 @@ func ChannelHandler(w http.ResponseWriter, r *http.Request) {
 		str, _ := json.Marshal(resp)
 		w.Write(str)
 	}
-	log.Println("test here end")
+	dlog.Info.Println("test here end")
 	page, _ := strconv.ParseInt(r.PostFormValue("page"), 10, 64)
 	maxNum, _:= strconv.ParseInt(r.PostFormValue("maxnum"), 10, 64)
 	isPrepayment := r.PostFormValue("is_prepayment")
 	isValid := r.PostFormValue("is_valid")
 	channelName := r.PostFormValue("channel_name")
 	phoneNum := r.PostFormValue("phone_num")
-	log.Printf("page: %d, num: %d", page, maxNum)
+	dlog.Info.Printf("page: %d, num: %d", page, maxNum)
 	db := GetConn()
 	defer db.Close()
 	allChannel := QueryAllChannelInfo(db, page, maxNum, isPrepayment, isValid, channelName, phoneNum)
-	log.Println("allChannel", allChannel)
+	dlog.Info.Println("allChannel", allChannel)
 	totalNum := QueryChannelAllTotal(db, isPrepayment, isValid, channelName, phoneNum)
-	log.Println("totalNum", totalNum)
+	dlog.Info.Println("totalNum", totalNum)
 	type MyData struct {
 		Info []model.Channel	`json:"info"`
 		Num  int64            `json:"num"`
@@ -51,12 +50,11 @@ func ChannelHandler(w http.ResponseWriter, r *http.Request) {
 	resp.Respmsg = ""
 	resp.Data = data
 	str, _ := json.Marshal(resp)
-	log.Println(string(str))
+	dlog.Debug.Println(string(str))
 	w.Write(str)
 }
 
 func ChannelNamesHandler(w http.ResponseWriter, r *http.Request) {
-	var log = dlog.DcLog()
 	resp := model.Response{}
 	if r.Method != "GET" {
 		resp.Respcd = "1000"
@@ -74,6 +72,6 @@ func ChannelNamesHandler(w http.ResponseWriter, r *http.Request) {
 	resp.Respmsg = ""
 	resp.Data = names
 	str, _ := json.Marshal(resp)
-	log.Println(string(str))
+	dlog.Info.Println(string(str))
 	w.Write(str)
 }

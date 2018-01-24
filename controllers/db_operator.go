@@ -94,12 +94,11 @@ func QueryUserById(userId int64) model.User {
 }
 
 func QueryByPhoneNumber(db *sql.DB, mobile string) model.User {
-	var log = dlog.DcLog()
 	rows, err := db.Query("select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user where phone_num=? limit 1", mobile)
 	if err != nil {
 		panic(err)
 	}
-	log.Println(rows)
+	dlog.Debug.Println(rows)
 
 	var loginName, nickName, phoneNum, password, email, username, cTime sql.NullString
 	var id sql.NullInt64
@@ -107,16 +106,16 @@ func QueryByPhoneNumber(db *sql.DB, mobile string) model.User {
 	for rows.Next() {
 		err := rows.Scan(&id, &loginName, &nickName, &phoneNum, &password, &userType, &email, &state, &username, &cTime)
 		if err != nil {
-			log.Fatal(err)
+			dlog.Warning.Fatal(err)
 		}
-		log.Println(loginName, nickName, phoneNum)
+		dlog.Info.Println(loginName, nickName, phoneNum)
 	}
 
 
-	log.Println("create_time", cTime)
+	dlog.Debug.Println("create_time", cTime)
 	err = rows.Err()
 	if err != nil {
-		log.Fatal(err)
+		dlog.Warning.Fatal(err)
 	}
 	var user = model.User{}
 	if id.Valid {
@@ -211,7 +210,6 @@ func QueryUsersAllTotal(db *sql.DB, phoneNum, loginName, nickName string) int64 
 }
 
 func QueryChannelAllTotal(db *sql.DB, isPrepayment, isValid, channelName, phoneNum string) int64 {
-	var log = dlog.DcLog()
 	var total sql.NullInt64
 	if isPrepayment == "" && isValid == "" && channelName == "" && phoneNum == "" {
 		db.QueryRow("select count(*) as total from channel").Scan(&total)
@@ -226,10 +224,10 @@ func QueryChannelAllTotal(db *sql.DB, isPrepayment, isValid, channelName, phoneN
 		whereMap["phone_num"] = phoneNum
 		where := BuildWhere(whereMap, intArr)
 		if where != "" {
-			log.Println("query channel all ")
+			dlog.Info.Println("query channel all ")
 			var querySql = "select count(*) as total from channel where %s"
 			querySql = fmt.Sprintf(querySql, where)
-			log.Println("sql where ", querySql)
+			dlog.Info.Println("sql where ", querySql)
 			//db.QueryRow("select count(*) as total from channel where ?", where).Scan(&total)
 			db.QueryRow(querySql).Scan(&total)
 		}
@@ -255,7 +253,6 @@ func QueryRuleAllTotal(db *sql.DB, Name string) int64 {
 }
 
 func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName, nickName string) []model.User {
-	var log = dlog.DcLog()
 	var allUser []model.User
 	var rows *sql.Rows
 	var err error
@@ -274,7 +271,7 @@ func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName
 		if where != "" {
 			var querySql = "select id, login_name, nick_name, phone_num, password, user_type, email, state, username, ctime from auth_user where %s limit %d offset %d"
 			querySql = fmt.Sprintf(querySql, where, limit, offset)
-			log.Println("sql", querySql)
+			dlog.Info.Println("sql", querySql)
 			rows, err = db.Query(querySql)
 		}
 	}
@@ -289,10 +286,10 @@ func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName
 		var user model.User
 		err := rows.Scan(&id, &login_name, &nick_name, &phone_num, &password, &user_type, &email, &state, &username, &ctime)
 		if err != nil {
-			log.Fatal(err)
+			dlog.Error.Fatal(err)
 		}
 
-		log.Println("create_time", ctime)
+		dlog.Info.Println("create_time", ctime)
 
 		user.Id = id.Int64
 		user.Login_name = login_name.String
@@ -329,15 +326,14 @@ func QueryAllUsersInfo(db *sql.DB, currSize, pageSize int64, phoneNum, loginName
 			user.Ctime = ""
 		}
 
-		log.Println(user)
+		dlog.Info.Println(user)
 		allUser = append(allUser, user)
 	}
-	log.Println("allUser:", allUser)
+	dlog.Info.Println("allUser:", allUser)
 	return allUser
 }
 
 func QueryAllChannelInfo(db *sql.DB, currSize, pageSize int64, isPrepayment, isValid, channelName, phoneNum string) []model.Channel {
-	var log = dlog.DcLog()
 	var allChannel []model.Channel
 	var rows *sql.Rows
 	var err error
@@ -346,7 +342,7 @@ func QueryAllChannelInfo(db *sql.DB, currSize, pageSize int64, isPrepayment, isV
 	if isPrepayment == "" && isValid == "" && channelName == "" && phoneNum == "" {
 		querySql = "select id, userid, remain_times, training_amt_per, divide_percent, status, is_valid, is_prepayment, ctime, utime, channel_name from channel limit %d offset %d "
 		querySql = fmt.Sprintf(querySql, limit, offset)
-		log.Println("sql", querySql)
+		dlog.Info.Println("sql", querySql)
 		rows, err = db.Query(querySql)
 		if err != nil {
 			panic(err)
@@ -364,7 +360,7 @@ func QueryAllChannelInfo(db *sql.DB, currSize, pageSize int64, isPrepayment, isV
 		if where != "" {
 			querySql = "select id, userid, remain_times, training_amt_per, divide_percent, status, is_valid, is_prepayment, ctime, utime, channel_name from channel where %s limit %d offset %d "
 			querySql = fmt.Sprintf(querySql, where, limit, offset)
-			log.Println("sql where", querySql)
+			dlog.Info.Println("sql where", querySql)
 			rows, err = db.Query(querySql)
 			if err != nil {
 				panic(err)
@@ -513,7 +509,6 @@ func UpdatePasswordById(userId int64, password string) {
 }
 
 func CreateRule(rule map[string]string, intArr []string) {
-	var log = dlog.DcLog()
     var str string
     var insertSql string
 	var arr []string
@@ -531,7 +526,7 @@ func CreateRule(rule map[string]string, intArr []string) {
 	var respStr = strings.Join(arr, ", ")
     insertSql = "insert into rules set %s"
     insertSql = fmt.Sprintf(insertSql, respStr)
-	log.Println("create rule insert sql", insertSql)
+	dlog.Info.Println("create rule insert sql", insertSql)
 	db := GetConn()
 	defer db.Close()
 	db.Exec(insertSql)
