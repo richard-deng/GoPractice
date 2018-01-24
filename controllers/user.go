@@ -1,19 +1,17 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 	"encoding/json"
 	"build_web/GoPractice/model"
+	"build_web/GoPractice/dlog"
 	"strconv"
 
 	"github.com/satori/go.uuid"
 	"fmt"
 )
 
-func init() {
-	InitLogFile()
-}
+
 
 /*
 登录处理
@@ -28,6 +26,7 @@ Flow:
     2.不存在则直接返回不存在的错误信息
  */
 func Login(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	log.Println(r.Method, r.URL.Path)
 	log.Println("hello world")
 	if r.Method == "GET" {
@@ -93,6 +92,7 @@ func Login(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserHandler(w http.ResponseWriter, r *http.Request)  {
+	var log = dlog.DcLog()
 	resp := model.Response{}
 	if r.Method != "POST" {
 		resp.Respcd = "1000"	//方法不对
@@ -134,6 +134,7 @@ func UserHandler(w http.ResponseWriter, r *http.Request)  {
 }
 
 func UserInfoByPhoneNumber(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	resp := model.Response{}
 	if r.Method != "POST" {
 		resp.Respcd = "1000"	//方法不对
@@ -172,6 +173,7 @@ func UserInfoByPhoneNumber(w http.ResponseWriter, r *http.Request) {
 }
 
 func UserChangePasswordHandler(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	log.Println("change password Method:", r.Method)
 	resp := model.Response{}
 	if r.Method != "POST" {

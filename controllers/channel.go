@@ -1,14 +1,16 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 	"encoding/json"
 	"build_web/GoPractice/model"
+	"build_web/GoPractice/dlog"
 	"strconv"
 )
 
+
 func ChannelHandler(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	resp := model.Response{}
 	if r.Method != "POST" {
 		resp.Respcd = "1000"
@@ -54,6 +56,7 @@ func ChannelHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func ChannelNamesHandler(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	resp := model.Response{}
 	if r.Method != "GET" {
 		resp.Respcd = "1000"

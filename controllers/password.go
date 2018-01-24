@@ -2,13 +2,15 @@ package controllers
 
 
 import(
-	"log"
 	"time"
 	"math/rand"
 	"crypto/sha1"
 	"encoding/hex"
 	"strings"
+	"build_web/GoPractice/dlog"
 )
+
+
 
 const (
 	KC_RAND_KIND_NUM   = 0	// 纯数字
@@ -33,6 +35,7 @@ func RandStr(size int, kind int) []byte {
 }
 
 func GenPassword(md5Password string) string {
+	var log = dlog.DcLog()
 	result := RandStr(5, KC_RAND_KIND_ALL)
 	randomStr := string(result)
 	log.Println(randomStr)
@@ -46,6 +49,7 @@ func GenPassword(md5Password string) string {
 }
 
 func CheckPassword(fullPassword string, md5Password string) bool {
+	var log = dlog.DcLog()
 	log.Printf("full password=%s", fullPassword)
 	all := strings.Split(fullPassword, "$")
 	salt := all[1]

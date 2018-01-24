@@ -1,13 +1,14 @@
 package controllers
 
 import (
-	"log"
 	"fmt"
 	"strings"
 	"strconv"
+	"build_web/GoPractice/dlog"
 )
 
 func BuildWhere(whereMap map[string]string, intArr []string) string {
+	var log = dlog.DcLog()
 	var whereArr []string
 	for key := range whereMap {
 		if whereMap[key] != "" {
@@ -26,6 +27,7 @@ func BuildWhere(whereMap map[string]string, intArr []string) string {
 }
 
 func golangIn(name string, arr []string) bool {
+	var log = dlog.DcLog()
 	var flag = false
 	for _, v := range arr {
 		if name == v {

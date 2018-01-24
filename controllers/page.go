@@ -1,9 +1,9 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 	"html/template"
+	"build_web/GoPractice/dlog"
 )
 
 var templates map[string]*template.Template
@@ -44,6 +44,7 @@ func renderTemplate(w http.ResponseWriter, name string, template string, data in
 渲染总览页面
  */
 func Overview(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	log.Println(r.Method, r.URL.Path)
 	if r.Method == "GET" {
 		renderTemplate(w, "overview", "base", nil)
@@ -55,6 +56,7 @@ func Overview(w http.ResponseWriter, r *http.Request) {
  */
 
 func UserView(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	log.Println(r.Method, r.URL.Path)
 	if r.Method == "GET" {
 		renderTemplate(w, "users", "base", nil)
@@ -66,6 +68,7 @@ func UserView(w http.ResponseWriter, r *http.Request) {
  */
 
 func ChannelView(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	log.Println(r.Method, r.URL.Path)
 	if r.Method == "GET" {
 		renderTemplate(w, "channel", "base", nil)
@@ -77,6 +80,7 @@ func ChannelView(w http.ResponseWriter, r *http.Request) {
  */
 
 func RuleView(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	log.Println(r.Method, r.URL.Path)
 	if r.Method == "GET" {
 		renderTemplate(w, "rule", "base", nil)

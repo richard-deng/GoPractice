@@ -1,14 +1,17 @@
 package controllers
 
 import (
-	"log"
 	"net/http"
 	"encoding/json"
 	"build_web/GoPractice/model"
 	"strconv"
+	"build_web/GoPractice/dlog"
 )
 
+
+
 func RuleHandler(w http.ResponseWriter, r *http.Request) {
+	var log = dlog.DcLog()
 	resp := model.Response{}
 	if r.Method != "POST" {
 		resp.Respcd = "1000"
