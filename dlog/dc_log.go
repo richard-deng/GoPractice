@@ -4,7 +4,7 @@ import (
 	"os"
 	"log"
 	"fmt"
-	//"time"
+	"time"
 )
 
 var (
@@ -17,7 +17,8 @@ var (
 func init() {
 	//创建输出日志文件
 	//logFile, err := os.Open("20180123.txt")
-	logFile, err := os.OpenFile("20180123.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	//logFile, err := os.OpenFile("20180123.log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	logFile, err := os.OpenFile("./" + time.Now().Format("20060102") + ".log", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	//logFile, err := os.Create("./" + time.Now().Format("20060102") + ".txt")
 	if err != nil {
 		fmt.Println(err)
